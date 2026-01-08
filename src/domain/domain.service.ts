@@ -17,14 +17,14 @@ export class DomainService {
 
   async findAll() {
     const domains = await this.drzzleService.db
-      .select({ name: domain.name })
+      .select({ id:domain.id , name: domain.name })
       .from(domain);
     return domains;
   }
 
   async findOne(name: string) {
     const [oneDomain] = await this.drzzleService.db
-      .select({ name: domain.name })
+      .select()
       .from(domain)
       .where(eq(domain.name, name));
     return oneDomain;
