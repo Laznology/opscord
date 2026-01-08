@@ -6,7 +6,10 @@ export const DRIZZLE_CONNECTION = 'DRIZZLE_CONNECTION';
 export const DrizzleProvider: Provider = {
   provide: DRIZZLE_CONNECTION,
   useFactory: () => {
-    const sqlite = new Database('./data/sqlite.db');
-    return drizzle(sqlite, { schema, logger: true });
+    const sqlite = new Database('.data/sqlite.db');
+    return drizzle(sqlite, {
+      schema,
+      logger: process.env.NODE_ENV !== 'production',
+    });
   },
 };
