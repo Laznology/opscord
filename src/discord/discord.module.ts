@@ -8,6 +8,9 @@ import { DnsCommand } from './dns.command';
 import { DNSListSelect } from 'src/components/discord/dns-list.select';
 import { DNSDeleteRecordSelect } from 'src/components/discord/dns-delete-record.select';
 import { DNSDeleteDomainSelect } from 'src/components/discord/dns-delete-domain.select';
+import { DNSUpdateDomainSelect } from '../components/discord/dns-update-domain.select';
+import { DNSUpdateRecordSelect } from '../components/discord/dns-update-record.select';
+import { DNSUpdateRecordModal } from '../components/discord/dns-update-record.modal';
 
 @Module({
   imports: [
@@ -25,6 +28,9 @@ import { DNSDeleteDomainSelect } from 'src/components/discord/dns-delete-domain.
     DNSListSelect,
     DNSDeleteRecordSelect,
     DNSDeleteDomainSelect,
+    DNSUpdateDomainSelect,
+    DNSUpdateRecordSelect,
+    DNSUpdateRecordModal,
   ],
 })
 export class DiscordModule {}

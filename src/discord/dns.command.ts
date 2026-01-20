@@ -111,4 +111,32 @@ export class DnsCommand {
       flags: MessageFlags.Ephemeral,
     });
   }
+
+  @SlashCommand({
+    name: 'update-dns-record',
+    description: 'Update Clodufalre Record',
+  })
+  public async onUpdate(@Context() [interaction]: SlashCommandContext) {
+    const domains = await this.domainService.findAll();
+    const selectedDomain = new StringSelectMenuBuilder()
+      .setCustomId('dns-update-domain-select')
+      .setPlaceholder('Selec domain to update record')
+      .setMaxValues(1)
+      .setMinValues(1)
+      .setOptions(
+        domains.map((domain) => ({
+          label: domain.name,
+          value: domain.name,
+        })),
+      );
+
+    const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+      selectedDomain,
+    );
+    return interaction.reply({
+      content: 'Select domain to update record',
+      components: [row],
+      flags: MessageFlags.Ephemeral,
+    });
+  }
 }
