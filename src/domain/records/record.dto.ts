@@ -186,6 +186,63 @@ export class CreateDnsRecordDto {
 
 export class UpdateDnsRecordDto {
   @StringOption({
+    name: 'name',
+    description: 'Record name (e.g., @ or subdomain)',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @Length(1, 255, {
+    message: 'Name must be 1-255 characters',
+  })
+  @Transform(({ value }: { value: unknown }): unknown =>
+    typeof value === 'string' ? value.toLowerCase().trim() : value,
+  )
+  name?: string;
+
+  @StringOption({
+    name: 'type',
+    description: 'DNS record type',
+    required: false,
+    choices: [
+      { name: 'A', value: 'A' },
+      { name: 'AAAA', value: 'AAAA' },
+      { name: 'CNAME', value: 'CNAME' },
+      { name: 'TXT', value: 'TXT' },
+      { name: 'MX', value: 'MX' },
+      { name: 'NS', value: 'NS' },
+      { name: 'SRV', value: 'SRV' },
+    ],
+  })
+  @IsString()
+  @IsOptional()
+  @IsIn(['A', 'AAAA', 'CNAME', 'TXT', 'MX', 'NS', 'SRV'], {
+    message: 'Invalid DNS record type',
+  })
+  type?:
+    | 'A'
+    | 'AAAA'
+    | 'CNAME'
+    | 'MX'
+    | 'NS'
+    | 'OPENPGPKEY'
+    | 'PTR'
+    | 'TXT'
+    | 'CAA'
+    | 'CERT'
+    | 'DNSKEY'
+    | 'DS'
+    | 'HTTPS'
+    | 'LOC'
+    | 'NAPTR'
+    | 'SMIMEA'
+    | 'SRV'
+    | 'SSHFP'
+    | 'SVCB'
+    | 'TLSA'
+    | 'URI';
+
+  @StringOption({
     name: 'content',
     description: 'New record content (IP, CNAME target, etc.)',
     required: false,
@@ -193,7 +250,7 @@ export class UpdateDnsRecordDto {
   @IsString()
   @IsOptional()
   @Length(1, 2048, {
-    message: '❌ Content must be 1-2048 characters',
+    message: 'Content must be 1-2048 characters',
   })
   @Transform(({ value }: { value: unknown }): unknown =>
     typeof value === 'string' ? value.trim() : value,
