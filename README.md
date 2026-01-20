@@ -1,61 +1,132 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Opscord
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A Discord bot for managing Cloudflare DNS records through Discord slash commands. Built with NestJS, Discord.js, and Cloudflare API integration.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- **Discord Integration**: Slash commands for DNS management
+- **Cloudflare DNS Management**: Create, update, and delete DNS records
+- **Domain Management**: Support for multiple domains
+- **Tunnel Integration**: Cloudflare Tunnel configuration management
+- **Database**: SQLite with Drizzle ORM for data persistence
+- **Security**: User authentication and authorization
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Prerequisites
 
-## Project setup
+- [Bun](https://bun.sh) runtime
+- Discord Bot Application
+- Cloudflare Account with API access
+
+## Environment Setup
+
+1. **Copy environment file:**
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Configure environment variables in `.env`:**
+
+   ### Discord Configuration
+   - Get your bot token from [Discord Developer Portal](https://discord.com/developers/applications)
+   - Create a new application → Bot → Copy Token
+   - Get your server ID by right-clicking your Discord server → Copy Server ID
+   - Get your user ID by right-clicking your username → Copy User ID
+
+   ### Cloudflare Configuration  
+   - Create API Token at [Cloudflare Dashboard](https://dash.cloudflare.com/profile/api-tokens)
+   - Required permissions: `Zone:Zone:Read`, `Zone:DNS:Edit`
+
+3. **Required Discord Bot Permissions:**
+   - `applications.commands` (for slash commands)
+   - `Send Messages`
+   - `Use Slash Commands`
+
+## Project Setup
 
 ```bash
-$ pnpm install
+# Install dependencies
+$ bun install
+
+# Generate database schema
+$ bun run db:generate
+
+# Run database migrations
+$ bun run db:migrate
 ```
 
-## Compile and run the project
+## Running the Application
 
 ```bash
 # development
-$ pnpm run start
+$ bun run start
 
 # watch mode
-$ pnpm run start:dev
+$ bun run start:dev
 
 # production mode
-$ pnpm run start:prod
+$ bun run start:prod
 ```
 
-## Run tests
+## Database Management
+
+```bash
+# Generate new migrations after schema changes
+$ bun run db:generate
+
+# Apply migrations
+$ bun run db:migrate
+
+# Open database studio
+$ bun run db:studio
+```
+
+## Available Commands
+
+The bot provides the following Discord slash commands:
+
+- `/dns list` - List all DNS records for a domain
+- `/dns create` - Create a new DNS record
+- `/dns update` - Update an existing DNS record  
+- `/dns delete` - Delete a DNS record
+
+## Run Tests
 
 ```bash
 # unit tests
-$ pnpm run test
+$ bun run test
 
 # e2e tests
-$ pnpm run test:e2e
+$ bun run test:e2e
 
 # test coverage
-$ pnpm run test:cov
+$ bun run test:cov
 ```
+
+## Project Structure
+
+```
+src/
+├── cloudflare/          # Cloudflare API service
+├── common/              # Shared guards, filters, utilities
+├── components/          # Discord UI components
+├── cron/                # Scheduled tasks
+├── db/                  # Database configuration and schema
+├── discord/             # Discord bot commands and handlers
+├── domain/              # Domain management logic
+├── tunnel/              # Cloudflare Tunnel management
+└── user/                # User management
+```
+
+## Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `CLOUDFLARE_API_KEY` | Cloudflare API token | Yes |
+| `DISCORD_TOKEN` | Discord bot token | Yes |
+| `DISCORD_DEVELOPMENT_GUILD_ID` | Discord server ID for development | Yes |
+| `DISCORD_OWNER_ID` | Discord user ID for bot authorization | Yes |
+| `PORT` | Server port (default: 3000) | No |
+| `NODE_ENV` | Environment mode | No |
 
 ## Deployment
 
