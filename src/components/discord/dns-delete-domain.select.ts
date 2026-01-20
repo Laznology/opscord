@@ -25,18 +25,39 @@ export class DNSDeleteDomainSelect {
     @Context() [interaction]: StringSelectContext,
     @SelectedStrings() selected: string[],
   ) {
-    const selectedDomain = selected[0];
+    const selectedDomainValue = selected[0];
     try {
-      const records =
-        await this.dnsRecordService.findRecordByZone(selectedDomain);
+      const domain =
+        (await this.domainService.findOne(selectedDomainValue)) ||
+        (await this.domainService.findById(selectedDomainValue));
+      if (!domain) {
+        return interaction.reply({
+          content: `Domain ${selectedDomainValue} not found`,
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+
+      const domainId = domain.id;
+      const records = await this.dnsRecordService.findRecordByZone(domainId);
+      if (!records || records.length === 0) {
+        return interaction.reply({
+          content: `No DNS records found for ${domain.name}`,
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+
+      const limitedRecords = records.slice(0, 25); // Discord allows 1-25 options
       const selectRecord = new StringSelectMenuBuilder()
         .setCustomId('dns-delete:record-select')
         .setPlaceholder('Select record to delete: ')
         .setMinValues(1)
         .setMaxValues(1)
         .addOptions(
-          records.map((record) => ({
-            label: record.name,
+          limitedRecords.map((record) => ({
+            label:
+              record.name.length > 25
+                ? record.name.substring(0, 22) + '...'
+                : record.name,
             value: record.id,
           })),
         );
@@ -44,7 +65,7 @@ export class DNSDeleteDomainSelect {
         selectRecord,
       );
       await interaction.reply({
-        content: `Selected: ${selectedDomain}`,
+        content: `Selected domain: ${domain.name}`,
         flags: MessageFlags.Ephemeral,
         components: [row],
       });

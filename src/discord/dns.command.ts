@@ -98,7 +98,7 @@ export class DnsCommand {
       .setOptions(
         domains.map((domain) => ({
           label: domain.name,
-          value: domain.id,
+          value: domain.name,
         })),
       );
     const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
