@@ -19,6 +19,12 @@ export class DNSRecordService {
       .from(dnsRecord)
       .where(eq(dnsRecord.domainId, domainId));
   }
+  async getOne(recordId: string) {
+    return this.drizzleService.db
+      .select()
+      .from(dnsRecord)
+      .where(eq(dnsRecord.id, recordId));
+  }
   async createRecord(createDto: CreateDnsRecordDto) {
     const { domainName } = createDto;
     const [domain] = await this.drizzleService.db
