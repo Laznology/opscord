@@ -31,6 +31,7 @@ export class DNSUpdateRecordSelect {
         content: 'DNS Record dose not found in Database',
         flags: MessageFlags.Ephemeral,
       });
+      return;
     }
 
     const modal = new ModalBuilder()

@@ -35,11 +35,10 @@ export class DNSUpdateRecordModal {
 
       const updateDto: UpdateDnsRecordDto = {
         name,
-        type,
+        type: type as 'A' | 'AAAA' | 'CNAME',
         content,
         proxied,
       };
-
       const result = await this.dnsRecordService.updateRecord(
         recordId,
         updateDto,
