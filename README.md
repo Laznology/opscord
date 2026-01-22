@@ -2,6 +2,15 @@
 
 A Discord bot for managing Cloudflare DNS records through Discord slash commands. Built with NestJS, Discord.js, and Cloudflare API integration.
 
+## Tech Stack
+
+- **Runtime:** [Bun](https://bun.sh) - Fast JavaScript runtime
+- **Framework:** [NestJS](https://nestjs.com) - Node.js framework
+- **Database:** SQLite with [Drizzle ORM](https://orm.drizzle.team)
+- **Discord:** [Necord](https://necord.org) - NestJS Discord integration
+- **Cloudflare:** [Cloudflare API](https://api.cloudflare.com) - DNS management
+- **Deployment:** Docker with multi-stage builds
+
 ## Features
 
 - **Discord Integration**: Slash commands for DNS management
@@ -13,13 +22,15 @@ A Discord bot for managing Cloudflare DNS records through Discord slash commands
 
 ## Prerequisites
 
-- [Bun](https://bun.sh) runtime
+- [Bun](https://bun.sh) runtime (for local development)
+- [Docker](https://docker.com) (for containerized deployment)
 - Discord Bot Application
 - Cloudflare Account with API access
 
 ## Environment Setup
 
 1. **Copy environment file:**
+
    ```bash
    cp .env.example .env
    ```
@@ -32,7 +43,7 @@ A Discord bot for managing Cloudflare DNS records through Discord slash commands
    - Get your server ID by right-clicking your Discord server → Copy Server ID
    - Get your user ID by right-clicking your username → Copy User ID
 
-   ### Cloudflare Configuration  
+   ### Cloudflare Configuration
    - Create API Token at [Cloudflare Dashboard](https://dash.cloudflare.com/profile/api-tokens)
    - Required permissions: `Zone:Zone:Read`, `Zone:DNS:Edit`
 
@@ -53,6 +64,61 @@ $ bun run db:generate
 # Run database migrations
 $ bun run db:migrate
 ```
+
+## Docker Setup
+
+This project includes Docker configuration for easy deployment and development.
+
+### Development with Docker
+
+```bash
+# Build the development image
+$ docker-compose build
+
+# Run in development mode
+$ docker-compose up
+
+# Run in background
+$ docker-compose up -d
+
+# View logs
+$ docker-compose logs -f
+
+# Stop containers
+$ docker-compose down
+```
+
+### Production Deployment
+
+```bash
+# Build production image
+$ docker-compose -f docker-compose.yml build
+
+# Run in production
+$ docker-compose -f docker-compose.yml up -d
+
+# Check container status
+$ docker-compose ps
+
+# View production logs
+$ docker-compose logs -f app
+```
+
+### Docker Configuration
+
+The Docker setup includes:
+
+- **Multi-stage builds** for optimized production images
+- **SQLite database** with persistent volume mounting
+- **Automatic migrations** on container startup
+- **Environment-based logging** (disabled in production)
+
+### Environment Variables for Docker
+
+| Variable   | Docker Default | Description                                    |
+| ---------- | -------------- | ---------------------------------------------- |
+| `NODE_ENV` | `production`   | Set to `development` in `.env` for dev logging |
+| `PORT`     | `3000`         | Container internal port                        |
 
 ## Running the Application
 
@@ -86,7 +152,7 @@ The bot provides the following Discord slash commands:
 
 - `/dns list` - List all DNS records for a domain
 - `/dns create` - Create a new DNS record
-- `/dns update` - Update an existing DNS record  
+- `/dns update` - Update an existing DNS record
 - `/dns delete` - Delete a DNS record
 
 ## Run Tests
@@ -119,27 +185,95 @@ src/
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `CLOUDFLARE_API_KEY` | Cloudflare API token | Yes |
-| `DISCORD_TOKEN` | Discord bot token | Yes |
-| `DISCORD_DEVELOPMENT_GUILD_ID` | Discord server ID for development | Yes |
-| `DISCORD_OWNER_ID` | Discord user ID for bot authorization | Yes |
-| `PORT` | Server port (default: 3000) | No |
-| `NODE_ENV` | Environment mode | No |
+| Variable                       | Description                           | Required |
+| ------------------------------ | ------------------------------------- | -------- |
+| `CLOUDFLARE_API_KEY`           | Cloudflare API token                  | Yes      |
+| `DISCORD_TOKEN`                | Discord bot token                     | Yes      |
+| `DISCORD_DEVELOPMENT_GUILD_ID` | Discord server ID for development     | Yes      |
+| `DISCORD_OWNER_ID`             | Discord user ID for bot authorization | Yes      |
+| `PORT`                         | Server port (default: 3000)           | No       |
+| `NODE_ENV`                     | Environment mode                      | No       |
 
 ## Deployment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### Production Deployment with Docker
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+1. **Prepare environment:**
+
+   ```bash
+   # Copy and configure environment file
+   cp .env.example .env
+   # Edit .env with your production values
+   ```
+
+2. **Build and deploy:**
+
+   ```bash
+   # Build production image
+   docker-compose build
+
+   # Run in production mode
+   docker-compose up -d
+
+   # Verify deployment
+   docker-compose ps
+   docker-compose logs -f app
+   ```
+
+3. **Database persistence:**
+   - SQLite database is stored in `./.data/sqlite.db`
+   - Mount this volume for data persistence
+   - Back up this file regularly for data safety
+
+### Production Considerations
+
+- **Environment Variables:** Ensure all required environment variables are set in `.env`
+- **Database Backups:** Regularly backup `./.data/sqlite.db`
+- **Logs:** Monitor application logs with `docker-compose logs -f`
+- **Updates:** To update the application:
+  ```bash
+  docker-compose down
+  git pull
+  docker-compose build
+  docker-compose up -d
+  ```
+
+### Cloud Deployment
+
+For cloud deployment, you can:
+
+1. **Build the image locally:**
+
+   ```bash
+   docker build -t opscord .
+   ```
+
+2. **Push to container registry:**
+
+   ```bash
+   docker tag opscord your-registry/opscord:latest
+   docker push your-registry/opscord:latest
+   ```
+
+3. **Deploy on cloud platforms** (AWS ECS, Google Cloud Run, etc.) using the pushed image
+
+### Manual Production Setup (without Docker)
+
+If you prefer not to use Docker:
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
+# Install dependencies
+$ bun install --production
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+# Build the application
+$ bun run build
+
+# Run database migrations
+$ bun run db:migrate
+
+# Start production server
+$ bun run start:prod
+```
 
 ## Resources
 
