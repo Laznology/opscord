@@ -9,7 +9,6 @@ import {
   Matches,
   Max,
   Min,
-  ValidateIf,
 } from 'class-validator';
 import { BooleanOption, IntegerOption, StringOption } from 'necord';
 import { Transform } from 'class-transformer';
@@ -21,7 +20,7 @@ export class CreateDomainDto {
     required: true,
   })
   @IsString()
-  @IsFQDN({}, { message: '❌ Must be valid FQDN (e.g., example.com)' })
+  @IsFQDN({}, { message: 'Must be valid FQDN (e.g., example.com)' })
   @Transform(({ value }: { value: unknown }): unknown =>
     typeof value === 'string' ? value.toLowerCase().trim() : value,
   )
@@ -33,9 +32,9 @@ export class CreateDomainDto {
     required: true,
   })
   @IsString()
-  @Length(32, 32, { message: '❌ Zone ID must be exactly 32 characters' })
+  @Length(32, 32, { message: 'Zone ID must be exactly 32 characters' })
   @Matches(/^[a-f0-9]{32}$/, {
-    message: '❌ Zone ID must be hexadecimal (0-9, a-f)',
+    message: 'Zone ID must be hexadecimal (0-9, a-f)',
   })
   cfZoneId: string;
 }
@@ -48,7 +47,7 @@ export class UpdateDomainDto {
   })
   @IsString()
   @IsOptional()
-  @IsFQDN({}, { message: '❌ Must be valid FQDN' })
+  @IsFQDN({}, { message: 'Must be valid FQDN' })
   @Transform(({ value }: { value: unknown }): unknown =>
     typeof value === 'string' ? value.toLowerCase().trim() : value,
   )
@@ -61,9 +60,9 @@ export class UpdateDomainDto {
   })
   @IsString()
   @IsOptional()
-  @Length(32, 32, { message: '❌ Zone ID must be 32 chars' })
+  @Length(32, 32, { message: 'Zone ID must be 32 chars' })
   @Matches(/^[a-f0-9]{32}$/, {
-    message: '❌ Zone ID must be hexadecimal',
+    message: 'Zone ID must be hexadecimal',
   })
   cfZoneId?: string;
 }
@@ -85,38 +84,13 @@ export class CreateDnsRecordDto {
       { name: 'A (IPv4 address)', value: 'A' },
       { name: 'AAAA (IPv6 address)', value: 'AAAA' },
       { name: 'CNAME (Alias)', value: 'CNAME' },
-      { name: 'TXT (Text)', value: 'TXT' },
-      { name: 'MX (Mail)', value: 'MX' },
-      { name: 'SRV (Service)', value: 'SRV' },
-      { name: 'NS (Nameserver)', value: 'NS' },
     ],
   })
   @IsString()
-  @IsIn(['A', 'AAAA', 'CNAME', 'TXT', 'MX', 'NS', 'SRV'], {
-    message: '❌ Invalid DNS record type',
+  @IsIn(['A', 'AAAA', 'CNAME'], {
+    message: 'Invalid DNS record type. Allowed: A, AAAA, CNAME',
   })
-  type:
-    | 'A'
-    | 'AAAA'
-    | 'CNAME'
-    | 'MX'
-    | 'NS'
-    | 'OPENPGPKEY'
-    | 'PTR'
-    | 'TXT'
-    | 'CAA'
-    | 'CERT'
-    | 'DNSKEY'
-    | 'DS'
-    | 'HTTPS'
-    | 'LOC'
-    | 'NAPTR'
-    | 'SMIMEA'
-    | 'SRV'
-    | 'SSHFP'
-    | 'SVCB'
-    | 'TLSA'
-    | 'URI';
+  type: 'A' | 'AAAA' | 'CNAME';
 
   @StringOption({
     name: 'name',
@@ -125,7 +99,7 @@ export class CreateDnsRecordDto {
   })
   @IsString()
   @Length(1, 255, {
-    message: '❌ Record name must be 1-255 characters',
+    message: 'Record name must be 1-255 characters',
   })
   @Transform(({ value }: { value: unknown }): unknown =>
     typeof value === 'string' ? value.toLowerCase().trim() : value,
@@ -139,7 +113,7 @@ export class CreateDnsRecordDto {
   })
   @IsString()
   @Length(1, 2048, {
-    message: '❌ Content must be 1-2048 characters',
+    message: 'Content must be 1-2048 characters',
   })
   @Transform(({ value }: { value: unknown }): unknown =>
     typeof value === 'string' ? value.trim() : value,
@@ -164,24 +138,9 @@ export class CreateDnsRecordDto {
   })
   @IsInt()
   @IsOptional()
-  @Min(1, { message: '❌ TTL must be at least 1 (auto)' })
-  @Max(86400, { message: '❌ TTL max 86400 seconds (24 hours)' })
+  @Min(1, { message: 'TTL must be at least 1 (auto)' })
+  @Max(86400, { message: 'TTL max 86400 seconds (24 hours)' })
   ttl?: number;
-
-  @StringOption({
-    name: 'priority',
-    description: 'Priority for MX/SRV records (0-65535)',
-    required: false,
-  })
-  @IsOptional()
-  @ValidateIf((o: CreateDnsRecordDto) => ['MX', 'SRV'].includes(o.type))
-  @IsInt({ message: '❌ Priority must be a number' })
-  @Min(0)
-  @Max(65535)
-  @Transform(({ value }: { value: unknown }): unknown =>
-    typeof value === 'string' ? parseInt(value, 10) : value,
-  )
-  priority?: number;
 }
 
 export class UpdateDnsRecordDto {
@@ -208,39 +167,14 @@ export class UpdateDnsRecordDto {
       { name: 'A', value: 'A' },
       { name: 'AAAA', value: 'AAAA' },
       { name: 'CNAME', value: 'CNAME' },
-      { name: 'TXT', value: 'TXT' },
-      { name: 'MX', value: 'MX' },
-      { name: 'NS', value: 'NS' },
-      { name: 'SRV', value: 'SRV' },
     ],
   })
   @IsString()
   @IsOptional()
-  @IsIn(['A', 'AAAA', 'CNAME', 'TXT', 'MX', 'NS', 'SRV'], {
-    message: 'Invalid DNS record type',
+  @IsIn(['A', 'AAAA', 'CNAME'], {
+    message: 'Invalid DNS record type. Allowed: A, AAAA, CNAME',
   })
-  type?:
-    | 'A'
-    | 'AAAA'
-    | 'CNAME'
-    | 'MX'
-    | 'NS'
-    | 'OPENPGPKEY'
-    | 'PTR'
-    | 'TXT'
-    | 'CAA'
-    | 'CERT'
-    | 'DNSKEY'
-    | 'DS'
-    | 'HTTPS'
-    | 'LOC'
-    | 'NAPTR'
-    | 'SMIMEA'
-    | 'SRV'
-    | 'SSHFP'
-    | 'SVCB'
-    | 'TLSA'
-    | 'URI';
+  type?: 'A' | 'AAAA' | 'CNAME';
 
   @StringOption({
     name: 'content',
