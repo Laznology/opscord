@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   Context,
   Options,
@@ -17,8 +17,6 @@ import { DNSRecordService } from '../domain/records/records.service';
 
 @Injectable()
 export class DnsCommand {
-  private readonly logger = new Logger(DnsCommand.name);
-
   constructor(
     private readonly domainService: DomainService,
     private recordService: DNSRecordService,
@@ -27,9 +25,7 @@ export class DnsCommand {
   @SlashCommand({ name: 'list-records', description: 'List domain records' })
   public async listRecords(@Context() [interaction]: SlashCommandContext) {
     try {
-      this.logger.log('Executing list-records command');
       const domains = await this.domainService.findAll();
-      this.logger.log(`Found ${domains?.length || 0} domains`);
 
       if (!domains || domains.length === 0) {
         return interaction.reply({
@@ -53,14 +49,12 @@ export class DnsCommand {
         selectMenu,
       );
 
-      this.logger.log('Sending reply with select menu');
       return interaction.reply({
         content: 'Select a domain to view DNS records:',
         components: [row],
         flags: MessageFlags.Ephemeral,
       });
-    } catch (error) {
-      this.logger.error('Error in list-records command:', error);
+    } catch {
       if (!interaction.replied && !interaction.deferred) {
         return interaction.reply({
           content: 'An error occurred while processing your request.',
